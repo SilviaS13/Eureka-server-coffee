@@ -93,11 +93,7 @@ public class CoffeeManagerController {
 
     //endregion
 
-    @PostMapping(path = "/coffeeschedule/rm")
-    public String removeCoffee(@RequestBody Integer id){
-        CoffeeManagerService.removeCoffeeTime(id);
-        return "Successful";
-    }
+    //region Add
 
     @PostMapping(path = "/coffeeschedule/add")
     public int createSchedule(@RequestBody CoffeeManagerModel coffeeTime){
@@ -106,9 +102,42 @@ public class CoffeeManagerController {
 
     @PostMapping(path = "/recipes/add")
     public Integer createRecipe(@RequestBody RecipesModel recipe){
-        return PostAdd(recipesService, "/api/recipes/add", RecipesModel.class, recipe);//!!!!!!!!!!!!!!!!!!!!!!
+        return PostAdd(recipesService, "/api/recipes/add", RecipesModel.class, recipe);
     }
 
+    @PostMapping(path = "/ingredients/update")
+    public String updIngredients(@RequestBody Integer[] ingredients){
+
+        String baseUrl = getServiceUrl(ingredientsService);
+        RestTemplate restTemplate = restBuilder.build();
+
+        RequestEntity<Integer[]> request = null;
+        try {
+            request = RequestEntity.post(new URI(baseUrl+ "/api/ingredients/update")).accept(MediaType.APPLICATION_JSON).body(ingredients);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+
+        ResponseEntity<String> response = restTemplate.exchange(request, String.class);
+        return response.getBody();
+    }
+
+    //endregion
+
+    //region Remove
+    @PostMapping(path = "/coffeeschedule/rm")
+    public String removeCoffee(@RequestBody Integer id){
+        CoffeeManagerService.removeCoffeeTime(id);
+        return "Successful";
+    }
+
+    @PostMapping(path = "/recipes/rm")
+    public String  rmRecipe(@RequestBody Integer id){
+            return PostRm(recipesService, "/api/recipes/rm", id);
+    }
+    //endregion
+
+    //region Queries
     private ResponseEntity<String> GetSingle(String service, String path) {
 
         String baseUrl = getServiceUrl(service);
@@ -142,9 +171,26 @@ public class CoffeeManagerController {
         return response.getBody();
     }
 
+    private String PostRm(String service, String path, Integer id) {
+
+        String baseUrl = getServiceUrl(service);
+        RestTemplate restTemplate = restBuilder.build();
+
+        RequestEntity<Integer> request = null;
+        try {
+            request = RequestEntity.post(new URI(baseUrl+path)).accept(MediaType.APPLICATION_JSON).body(id);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+
+        ResponseEntity<String> response = restTemplate.exchange(request, String.class);
+        return response.getBody();
+    }
+
 
     private String getServiceUrl(String serviceName) {
         InstanceInfo info = eurekaClient.getNextServerFromEureka(serviceName, false);
         return info.getHomePageUrl();
     }
+    //endregion
 }
