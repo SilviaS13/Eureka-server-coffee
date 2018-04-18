@@ -5,6 +5,7 @@ import com.coffeemaker.coffeeIngredients.CoffeeIngredientsModel;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -21,6 +22,23 @@ import java.util.HashMap;
 
 @RestController
 public class CoffeeManagerController {
+
+    @Value("${man.prop.one}")
+    private String manPropertyOne;
+
+    @Value("${man.prop.two}")
+    private String manPropertyTwo;
+
+    @Value("${man.prop.three}")
+    private String manPropertyThree;
+
+    @GetMapping("/coffeeschedule/showConfig")
+    public String showConfig(){
+        return "Property 1 = " + manPropertyOne + "<br/>" +
+                "Property 2 = " + manPropertyTwo + "<br/>" +
+                "Property 3 = " + manPropertyThree;
+    }
+
 
     @Autowired
     private RestTemplateBuilder restBuilder;
@@ -125,6 +143,7 @@ public class CoffeeManagerController {
     //endregion
 
     //region Remove
+
     @PostMapping(path = "/coffeeschedule/rm")
     public String removeCoffee(@RequestBody Integer id){
         CoffeeManagerService.removeCoffeeTime(id);
@@ -135,6 +154,7 @@ public class CoffeeManagerController {
     public String  rmRecipe(@RequestBody Integer id){
             return PostRm(recipesService, "/api/recipes/rm", id);
     }
+
     //endregion
 
     //region Queries
